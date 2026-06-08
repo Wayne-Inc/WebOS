@@ -1,0 +1,1337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>WebOS 12 — Browser Desktop Experience</title>
+<meta name="description" content="WebOS 12 is a high-performance, browser-based desktop environment featuring a glassmorphism aesthetic, virtualized file system, and native PWA integration. Zero dependencies."/>
+<meta name="keywords" content="WebOS, browser OS, desktop environment, web desktop, PWA, progressive web app, virtual filesystem, glassmorphism, vanilla javascript"/>
+<meta name="author" content="Wayne"/>
+<meta name="robots" content="index, follow"/>
+<meta name="theme-color" content="#070a12"/>
+
+<!-- Open Graph -->
+<meta property="og:type" content="website"/>
+<meta property="og:title" content="WebOS 12 — Browser Desktop Experience"/>
+<meta property="og:description" content="Your desktop in the browser. High-performance OS built with vanilla JS, zero dependencies."/>
+<meta property="og:url" content="https://webos-12.onrender.com/"/>
+<meta property="og:site_name" content="WebOS 12"/>
+<meta property="og:image" content="https://webos-12.onrender.com/og-image.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+
+<!-- Twitter Card -->
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="WebOS 12 — Browser Desktop Experience"/>
+<meta name="twitter:description" content="Your desktop in the browser. High-performance OS built with vanilla JS, zero dependencies."/>
+<meta name="twitter:image" content="https://webos-12.onrender.com/og-image.png"/>
+<meta name="twitter:creator" content="@itiswayneee"/>
+
+<!-- Canonical -->
+<link rel="canonical" href="https://webos-12.onrender.com/"/>
+
+<!-- JSON-LD Structured Data -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "WebOS 12",
+  "description": "A high-performance, browser-based desktop environment featuring glassmorphism UI, virtualized file system, and native PWA integration.",
+  "url": "https://webos-12.onrender.com/",
+  "image": "https://webos-12.onrender.com/og-image.png",
+  "author": {
+    "@type": "Person",
+    "name": "Wayne",
+    "url": "https://github.com/itiswayneee"
+  },
+  "license": {
+    "@type": "CreativeWork",
+    "name": "MIT License"
+  },
+  "softwareVersion": "1.0.0",
+  "operatingSystem": "Browser",
+  "applicationCategory": "UtilitiesApplication",
+  "offers": {
+    "@type": "Offer",
+    "price": "0",
+    "priceCurrency": "USD"
+  }
+}
+</script>
+
+<script src="https://unpkg.com/lucide@latest"></script>
+<style>
+/* ── RESET & TOKENS ── */
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#070a12;
+  --surface:rgba(255,255,255,.04);
+  --surface2:rgba(255,255,255,.07);
+  --border:rgba(255,255,255,.08);
+  --accent:#0078d4;
+  --accent2:#60cdff;
+  --accent3:#7c3aed;
+  --text:#f0f0f0;
+  --muted:rgba(240,240,240,.5);
+  --font-display:'Syne',sans-serif;
+  --font-body:'DM Sans',sans-serif;
+  --r:14px;
+}
+html{scroll-behavior:smooth;font-display:swap}
+body{
+  font-family:var(--font-body);
+  background:var(--bg);
+  color:var(--text);
+  line-height:1.6;
+  overflow-x:hidden;
+}
+::selection{background:rgba(0,120,212,.4);color:#fff}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,.15);border-radius:3px}
+
+/* ── NOISE OVERLAY ── */
+body::before{
+  content:'';position:fixed;inset:0;
+  background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;opacity:.6;
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:16px;left:50%;transform:translateX(-50%);
+  width:min(900px,calc(100% - 32px));
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 22px;
+  background:rgba(7,10,18,.7);
+  backdrop-filter:blur(24px);
+  border:1px solid var(--border);
+  border-radius:999px;
+  z-index:1000;
+}
+.nav-logo{
+  font-family:var(--font-display);
+  font-weight:800;font-size:1.05rem;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+  letter-spacing:-.02em;
+}
+.nav-links{display:flex;gap:6px;align-items:center}
+.nav-links a{
+  color:var(--muted);font-size:.85rem;font-weight:400;
+  text-decoration:none;padding:7px 14px;border-radius:999px;
+  transition:color .2s,background .2s;
+}
+.nav-links a:hover{color:var(--text);background:var(--surface2)}
+.nav-cta{
+  display:inline-flex;align-items:center;gap:7px;
+  padding:9px 20px;border-radius:999px;
+  background:var(--accent);color:#fff;
+  font-family:var(--font-display);font-weight:600;font-size:.85rem;
+  text-decoration:none;
+  transition:background .2s,transform .15s;
+  border:none;cursor:pointer;
+}
+.nav-cta:hover{background:#1489e0;transform:scale(1.04)}
+.nav-cta svg{width:14px;height:14px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── HERO ── */
+.hero{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  text-align:center;padding:120px 20px 80px;
+  position:relative;overflow:hidden;
+}
+
+/* Mesh gradient blobs */
+.hero::after{
+  content:'';position:absolute;inset:0;pointer-events:none;
+  background:
+    radial-gradient(ellipse 70% 60% at 20% 40%,rgba(0,120,212,.18) 0%,transparent 70%),
+    radial-gradient(ellipse 50% 50% at 80% 60%,rgba(124,58,237,.14) 0%,transparent 65%),
+    radial-gradient(ellipse 40% 40% at 50% 95%,rgba(96,205,255,.1) 0%,transparent 60%);
+}
+
+.hero-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:7px 16px;
+  border:1px solid rgba(96,205,255,.25);
+  border-radius:999px;
+  background:rgba(96,205,255,.05);
+  font-size:.78rem;font-weight:500;color:var(--accent2);
+  letter-spacing:.05em;text-transform:uppercase;
+  margin-bottom:32px;
+  position:relative;z-index:1;
+}
+.hero-badge-dot{
+  width:7px;height:7px;border-radius:50%;
+  background:var(--accent2);
+  box-shadow:0 0 8px var(--accent2);
+  animation:pulse 2s ease-in-out infinite;
+}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.5;transform:scale(.8)}}
+
+.hero h1{
+  font-family:var(--font-display);
+  font-size:clamp(3rem,8vw,6.5rem);
+  font-weight:800;
+  line-height:.95;
+  letter-spacing:-.04em;
+  position:relative;z-index:1;
+  margin-bottom:28px;
+}
+.hero h1 .line1{display:block;color:var(--text)}
+.hero h1 .line2{
+  display:block;
+  background:linear-gradient(135deg,var(--accent) 0%,var(--accent2) 50%,#a78bfa 100%);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+
+.hero-sub{
+  font-size:clamp(1rem,2.5vw,1.2rem);
+  color:var(--muted);max-width:540px;
+  line-height:1.7;font-weight:300;
+  position:relative;z-index:1;margin-bottom:44px;
+}
+
+.hero-actions{
+  display:flex;gap:12px;flex-wrap:wrap;justify-content:center;
+  position:relative;z-index:1;margin-bottom:80px;
+}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 32px;border-radius:999px;
+  background:linear-gradient(135deg,var(--accent),#1489e0);
+  color:#fff;font-family:var(--font-display);font-weight:600;font-size:1rem;
+  text-decoration:none;border:none;cursor:pointer;
+  box-shadow:0 0 30px rgba(0,120,212,.4);
+  transition:transform .2s,box-shadow .2s;
+}
+.btn-primary:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 0 50px rgba(0,120,212,.6)}
+.btn-primary svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+.btn-ghost{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:14px 28px;border-radius:999px;
+  background:transparent;
+  border:1px solid var(--border);
+  color:var(--text);font-family:var(--font-display);font-weight:600;font-size:1rem;
+  text-decoration:none;cursor:pointer;
+  transition:background .2s,border-color .2s,transform .2s;
+}
+.btn-ghost:hover{background:var(--surface2);border-color:rgba(255,255,255,.2);transform:translateY(-2px)}
+.btn-ghost svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+
+/* ── MOCKUP ── */
+.hero-mockup{
+  position:relative;z-index:1;
+  width:min(900px,90vw);
+  border-radius:16px;
+  border:1px solid rgba(255,255,255,.1);
+  overflow:hidden;
+  box-shadow:0 40px 100px rgba(0,0,0,.8),0 0 0 1px rgba(255,255,255,.05) inset,0 0 80px rgba(0,120,212,.15);
+}
+.mockup-bar{
+  background:#1c1c1c;
+  padding:10px 16px;
+  display:flex;align-items:center;gap:8px;
+}
+.mockup-dots{display:flex;gap:6px}
+.mockup-dot{width:12px;height:12px;border-radius:50%}
+.mockup-dot:nth-child(1){background:#ff5f57}
+.mockup-dot:nth-child(2){background:#febc2e}
+.mockup-dot:nth-child(3){background:#28c840}
+.mockup-url{
+  flex:1;text-align:center;
+  background:#2a2a2a;border-radius:6px;
+  padding:4px 12px;font-size:.75rem;color:rgba(255,255,255,.4);
+  max-width:300px;margin:0 auto;
+}
+.mockup-screen{
+  width:100%;
+  background:linear-gradient(135deg,#0f3460 0%,#1a1a4e 45%,#16213e 100%);
+  aspect-ratio:16/9;
+  position:relative;
+  overflow:hidden;
+  display:flex;flex-direction:column;
+}
+
+/* Fake desktop inside mockup */
+.mock-desktop{flex:1;position:relative;padding:20px;}
+.mock-orb{
+  position:absolute;border-radius:50%;filter:blur(60px);pointer-events:none;
+}
+.mock-orb1{width:300px;height:300px;background:radial-gradient(circle,rgba(0,120,212,.5),transparent);top:-80px;left:-60px}
+.mock-orb2{width:250px;height:250px;background:radial-gradient(circle,rgba(96,205,255,.3),transparent);bottom:-60px;right:-50px}
+
+.mock-icons{display:flex;flex-direction:column;gap:16px;position:absolute;left:20px;top:20px;}
+.mock-icon{
+  display:flex;flex-direction:column;align-items:center;gap:4px;
+  width:58px;
+}
+.mock-icon-img{
+  width:36px;height:36px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+}
+.mock-icon-img i{width:18px;height:18px;stroke:#fff;stroke-width:1.5}
+.mock-icon-label{font-size:8px;color:rgba(255,255,255,.8);text-align:center;text-shadow:0 1px 4px rgba(0,0,0,.9)}
+
+/* Fake window */
+.mock-window{
+  position:absolute;
+  top:14px;right:14px;
+  width:58%;
+  background:rgba(32,32,32,.92);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+.mock-win-bar{
+  background:#242424;padding:7px 10px;
+  display:flex;align-items:center;gap:6px;
+}
+.mock-win-dots{display:flex;gap:4px}
+.mock-win-dot{width:9px;height:9px;border-radius:50%}
+.mock-win-dot:nth-child(1){background:#ff5f57;opacity:.7}
+.mock-win-dot:nth-child(2){background:#febc2e;opacity:.7}
+.mock-win-dot:nth-child(3){background:#28c840;opacity:.7}
+.mock-win-title{font-size:10px;color:rgba(255,255,255,.5);margin-left:4px;font-family:var(--font-display)}
+.mock-win-body{padding:10px 12px;}
+.mock-code-line{
+  font-family:'Cascadia Code','Courier New',monospace;
+  font-size:8px;line-height:1.8;
+}
+.c-k{color:#569cd6}.c-f{color:#dcdcaa}.c-s{color:#ce9178}.c-v{color:#9cdcfe}.c-n{color:#4ec9b0}.c-c{color:#6a9955}
+
+/* Second window */
+.mock-window2{
+  position:absolute;
+  bottom:28px;left:80px;
+  width:45%;
+  background:rgba(32,32,32,.88);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:10px;
+  overflow:hidden;
+  box-shadow:0 8px 32px rgba(0,0,0,.5);
+}
+.mock-terminal{
+  background:#0c0c0c;padding:10px 12px;
+  font-family:'Cascadia Code','Courier New',monospace;
+  font-size:8px;line-height:1.9;
+  min-height:70px;
+}
+.t-prompt{color:#4fc1ff}.t-out{color:#ccc}.t-ok{color:#73c991}
+
+/* Fake taskbar */
+.mock-taskbar{
+  height:26px;
+  background:rgba(28,28,28,.92);
+  backdrop-filter:blur(16px);
+  border-top:1px solid rgba(255,255,255,.07);
+  display:flex;align-items:center;justify-content:center;
+  gap:4px;padding:0 8px;position:relative;
+}
+.mock-tb-icon{
+  width:30px;height:22px;
+  border-radius:4px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:13px;
+}
+.mock-tb-icon i{width:14px;height:14px;stroke:rgba(255,255,255,.7);stroke-width:1.5}
+.mock-tb-icon.active{background:rgba(255,255,255,.07)}
+.mock-tb-icon.active i{stroke:var(--accent2)}
+.mock-tb-icon.active::after{
+  content:'';display:block;position:absolute;
+  bottom:3px;width:14px;height:3px;border-radius:2px;background:var(--accent2);
+}
+.mock-clock{
+  position:absolute;right:10px;
+  font-size:8px;color:rgba(255,255,255,.5);
+  font-family:var(--font-display);
+}
+
+/* ── STATS ── */
+.stats-row{
+  display:flex;justify-content:center;flex-wrap:wrap;gap:40px;
+  padding:60px 20px;
+  border-top:1px solid var(--border);
+  border-bottom:1px solid var(--border);
+  position:relative;z-index:1;
+}
+.stat-item{text-align:center;}
+.stat-num{
+  font-family:var(--font-display);
+  font-size:2.6rem;font-weight:800;
+  background:linear-gradient(135deg,#fff,var(--accent2));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;line-height:1;
+}
+.stat-label{font-size:.8rem;color:var(--muted);margin-top:4px;font-weight:400}
+
+/* ── SECTION LAYOUT ── */
+section{max-width:1000px;margin:0 auto;padding:90px 24px;position:relative;z-index:1}
+
+.section-eyebrow{
+  font-size:.72rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;
+  color:var(--accent2);margin-bottom:12px;
+}
+.section-title{
+  font-family:var(--font-display);
+  font-size:clamp(2rem,5vw,3.2rem);
+  font-weight:800;line-height:1.05;
+  letter-spacing:-.03em;margin-bottom:16px;
+}
+.section-sub{font-size:1.05rem;color:var(--muted);max-width:500px;font-weight:300;line-height:1.7}
+
+/* ── FEATURES GRID ── */
+.features-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(270px,1fr));
+  gap:16px;margin-top:56px;
+}
+.feature-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:28px 26px;
+  transition:background .2s,border-color .25s,transform .2s,box-shadow .25s;
+  position:relative;overflow:hidden;
+}
+.feature-card::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(ellipse at 10% 0%,rgba(0,120,212,.07) 0%,transparent 60%);
+  pointer-events:none;
+}
+.feature-card:hover{
+  background:var(--surface2);
+  border-color:rgba(0,120,212,.3);
+  transform:translateY(-4px);
+  box-shadow:0 16px 48px rgba(0,0,0,.4),0 0 24px rgba(0,120,212,.12);
+}
+.feature-icon{
+  width:44px;height:44px;border-radius:10px;
+  background:rgba(0,120,212,.12);
+  border:1px solid rgba(0,120,212,.2);
+  display:flex;align-items:center;justify-content:center;
+  font-size:1.3rem;margin-bottom:18px;
+}
+.feature-icon i{width:22px;height:22px;stroke:var(--accent2)}
+.feature-title{
+  font-family:var(--font-display);
+  font-size:1.05rem;font-weight:700;margin-bottom:8px;letter-spacing:-.02em;
+}
+.feature-desc{font-size:.9rem;color:var(--muted);line-height:1.65;font-weight:300}
+
+/* ── APPS SHOWCASE ── */
+.apps-section{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border);}
+.apps-section > .inner{max-width:1000px;margin:0 auto;padding:90px 24px;}
+.apps-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(140px,1fr));
+  gap:12px;margin-top:48px;
+}
+.app-card{
+  background:rgba(255,255,255,.03);
+  border:1px solid var(--border);
+  border-radius:var(--r);
+  padding:24px 16px;
+  text-align:center;
+  transition:background .2s,border-color .2s,transform .2s;
+  cursor:default;
+}
+.app-card:hover{
+  background:rgba(255,255,255,.07);
+  border-color:rgba(96,205,255,.2);
+  transform:scale(1.05);
+}
+.app-emoji{font-size:2rem;margin-bottom:10px;display:flex;align-items:center;justify-content:center;width:100%}
+.app-emoji i{width:32px;height:32px;stroke:#fff}
+.app-name{font-family:var(--font-display);font-size:.85rem;font-weight:600;margin-bottom:4px}
+.app-tag{font-size:.72rem;color:var(--muted);font-weight:300}
+
+/* ── INSTALL ── */
+.install-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:16px;margin-top:48px;}
+.install-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);padding:28px 26px;
+  transition:border-color .2s,transform .2s;
+}
+.install-card:hover{border-color:rgba(96,205,255,.25);transform:translateY(-3px)}
+.install-num{
+  font-family:var(--font-display);
+  font-size:2.5rem;font-weight:800;
+  color:rgba(0,120,212,.25);
+  line-height:1;margin-bottom:16px;
+}
+.install-title{font-family:var(--font-display);font-weight:700;font-size:1.1rem;margin-bottom:8px;letter-spacing:-.02em}
+.install-desc{font-size:.9rem;color:var(--muted);line-height:1.65;font-weight:300}
+.code-block{
+  margin-top:14px;
+  background:#0d0d0d;border:1px solid rgba(255,255,255,.07);
+  border-radius:8px;padding:12px 14px;
+  font-family:'Cascadia Code','Courier New',monospace;
+  font-size:.8rem;color:#73c991;
+  position:relative;overflow:hidden;
+}
+.code-block::before{
+  content:'';position:absolute;top:0;left:0;width:3px;height:100%;
+  background:linear-gradient(to bottom,var(--accent),var(--accent2));
+}
+
+/* ── CTA BANNER ── */
+.cta-banner{
+  max-width:800px;margin:0 auto 80px;
+  text-align:center;padding:80px 24px 90px;
+  position:relative;z-index:1;
+}
+.cta-banner::before{
+  content:'';position:absolute;inset:-1px;
+  background:linear-gradient(135deg,rgba(0,120,212,.15),rgba(124,58,237,.1),rgba(96,205,255,.08));
+  border-radius:24px;z-index:-1;
+}
+.cta-inner{
+  background:rgba(7,10,18,.85);
+  backdrop-filter:blur(20px);
+  border:1px solid rgba(255,255,255,.08);
+  border-radius:24px;padding:64px 40px;
+}
+.cta-banner h2{
+  font-family:var(--font-display);
+  font-size:clamp(2rem,5vw,3rem);
+  font-weight:800;letter-spacing:-.03em;
+  margin-bottom:16px;line-height:1.1;
+}
+.cta-banner p{font-size:1.05rem;color:var(--muted);margin-bottom:36px;font-weight:300}
+.cta-actions{display:flex;gap:12px;justify-content:center;flex-wrap:wrap}
+
+/* ── FAQ ── */
+.faq-list{max-width:700px;margin-top:48px}
+.faq-item{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--r);margin-bottom:12px;
+  overflow:hidden;transition:border-color .25s;
+}
+.faq-item:hover{border-color:rgba(0,120,212,.3)}
+.faq-question{
+  padding:20px 24px;cursor:pointer;
+  display:flex;justify-content:space-between;align-items:center;
+  font-family:var(--font-display);font-weight:600;font-size:1rem;
+}
+.faq-question i{width:20px;height:20px;stroke:var(--muted);transition:transform .3s,stroke .2s}
+.faq-item.open .faq-question i{transform:rotate(180deg);stroke:var(--accent2)}
+.faq-answer{
+  max-height:0;overflow:hidden;transition:max-height .35s ease,padding .35s;
+}
+.faq-item.open .faq-answer{max-height:200px}
+.faq-answer-inner{padding:0 24px 20px;color:var(--muted);font-size:.95rem;line-height:1.7}
+
+/* ── TESTIMONIALS ── */
+.testimonials-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px;margin-top:48px
+}
+.testimonial-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--r);padding:28px;
+  transition:transform .25s,box-shadow .25s,border-color .25s;
+}
+.testimonial-card:hover{
+  transform:translateY(-4px);
+  box-shadow:0 20px 40px rgba(0,0,0,.3);
+  border-color:rgba(0,120,212,.3);
+}
+.testimonial-quote{font-size:1rem;line-height:1.75;color:var(--muted);margin-bottom:20px;font-style:italic}
+.testimonial-author{display:flex;align-items:center;gap:14px}
+.testimonial-avatar{
+  width:44px;height:44px;border-radius:50%;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--font-display);font-weight:700;font-size:1.1rem;
+}
+.testimonial-name{font-family:var(--font-display);font-weight:600;font-size:.95rem}
+.testimonial-role{font-size:.8rem;color:var(--muted)}
+
+/* ── INTERACTIVE ELEMENTS ── */
+.glow-hover{
+  position:relative;overflow:hidden;
+}
+.glow-hover::before{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(circle at var(--x,50%) var(--y,50%),rgba(0,120,212,.15),transparent 70%);
+  opacity:0;transition:opacity .3s;
+  pointer-events:none;
+}
+.glow-hover:hover::before{opacity:1}
+.tilt-hover{transition:transform .25s ease}
+.tilt-hover:hover{transform:perspective(1000px) rotateX(var(--rx,0deg)) rotateY(var(--ry,0deg))}
+.btn-shine{position:relative;overflow:hidden}
+.btn-shine::after{
+  content:'';position:absolute;top:-50%;left:-50%;
+  width:200%;height:200%;
+  background:linear-gradient(to right,transparent,rgba(255,255,255,.1),transparent);
+  transform:skewX(-20deg) translateX(-150%);
+  transition:transform .6s;
+}
+.btn-shine:hover::after{transform:skewX(-20deg) translateX(150%)}
+.scale-hover{transition:transform .2s,c box-shadow .2s}
+.scale-hover:hover{transform:scale(1.03)}
+.shake-hover{transition:transform .2s}
+@keyframes shake{0%,100%{transform:rotate(0)}25%{transform:rotate(-3deg)}75%{transform:rotate(3deg)}}
+.shake-hover:hover{animation:shake .3s ease}
+
+/* ── COMPARISON TABLE ── */
+.comparison-table{width:100%;max-width:900px;margin:48px auto 0;border-collapse:collapse}
+.comparison-table th,.comparison-table td{
+  padding:16px 20px;text-align:center;border:1px solid var(--border);
+}
+.comparison-table th{font-family:var(--font-display);font-weight:700;background:var(--surface)}
+.comparison-table th:first-child{text-align:left;background:var(--surface2)}
+.comparison-table td:first-child{text-align:left;font-weight:500}
+.comparison-table th:not(:first-child),.comparison-table td:not(:first-child){width:20%}
+.comparison-table .check{color:#73c991}
+.comparison-table .cross{color:#ff5f57}
+.comparison-table .partial{color:#febc2e;background:rgba(254,188,46,.1)}
+.comparison-table tbody tr{transition:background .2s}
+.comparison-table tbody tr:hover{background:var(--surface)}
+@media(max-width:640px){
+  .comparison-scroll{overflow-x:auto}
+  .comparison-table{min-width:500px}
+}
+
+/* ── PARTICLE EFFECT ── */
+#particle-canvas{position:fixed;inset:0;pointer-events:none;z-index:1}
+
+/* ── SCROLL INDICATORS ── */
+.scroll-progress{position:fixed;top:0;left:0;width:100%;height:3px;background:var(--border);z-index:2000}
+.scroll-progress-bar{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));width:0;transition:width .1s}
+.scroll-nav-dots{position:fixed;right:24px;top:50%;transform:translateY(-50%);z-index:1000;display:flex;flex-direction:column;gap:12px}
+.scroll-nav-dot{width:10px;height:10px;border-radius:50%;background:var(--border);cursor:pointer;transition:transform .2s,background .2s,box-shadow .2s}
+.scroll-nav-dot:hover{transform:scale(1.3)}
+.scroll-nav-dot.active{background:var(--accent2);box-shadow:0 0 12px var(--accent2)}
+@media(max-width:800px){.scroll-nav-dots{display:none}}
+
+/* ── PRESS MENTIONS ── */
+.press-logos{display:flex;justify-content:center;align-items:center;flex-wrap:wrap;gap:40px;margin-top:48px;opacity:.5}
+.press-logo{font-family:var(--font-display);font-size:1rem;font-weight:700;color:var(--muted);letter-spacing:.1em;text-transform:uppercase}
+
+/* ── ANIMATED STATS ── */
+.stat-num::after{content:attr(data-suffix);font-size:.4em;opacity:.6;margin-left:2px}
+
+/* ── WALLPAPER PREVIEW ── */
+.wallpaper-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(100px,1fr));gap:10px;margin-top:32px}
+.wallpaper-option{
+  aspect-ratio:16/10;border-radius:8px;cursor:pointer;position:relative;
+  border:2px solid transparent;transition:border-color .2s,transform .2s;
+}
+.wallpaper-option:hover{border-color:rgba(255,255,255,.3);transform:scale(1.03)}
+.wallpaper-option.active{border-color:var(--accent2);box-shadow:0 0 20px rgba(0,120,212,.4)}
+.wallpaper-name{position:absolute;bottom:4px;left:0;right:0;font-size:.55rem;text-align:center;color:#fff;text-shadow:0 1px 3px rgba(0,0,0,.9)}
+
+/* ── THEME PREVIEW ── */
+.theme-options{display:flex;gap:12px;justify-content:center;margin-top:32px;flex-wrap:wrap}
+.theme-option{
+  width:48px;height:48px;border-radius:50%;cursor:pointer;border:3px solid var(--border);
+  transition:transform .2s,border-color .2s,box-shadow .2s;
+}
+.theme-option:hover{transform:scale(1.1)}
+.theme-option.active{border-color:var(--accent2);box-shadow:0 0 20px var(--accent2)}
+
+/* ── FOOTER ── */
+footer{
+  border-top:1px solid var(--border);
+  padding:40px 24px;
+  text-align:center;
+  color:var(--muted);font-size:.85rem;
+  position:relative;z-index:1;
+}
+footer a{color:var(--accent2);text-decoration:none}
+footer a:hover{text-decoration:underline}
+.footer-row{display:flex;justify-content:space-between;align-items:center;max-width:900px;margin:0 auto;flex-wrap:wrap;gap:12px}
+.footer-logo{
+  font-family:var(--font-display);font-weight:800;
+  background:linear-gradient(135deg,var(--accent2),var(--accent));
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;
+  background-clip:text;
+}
+.footer-links{display:flex;gap:20px}
+.footer-links a{color:var(--muted);text-decoration:none;font-size:.8rem}
+.footer-links a:hover{color:var(--text)}
+
+/* ── SCROLL FADE ── */
+.fade-up{
+  opacity:0;transform:translateY(30px);
+  transition:opacity .65s ease,transform .65s ease;
+}
+.fade-up.visible{opacity:1;transform:translateY(0)}
+
+/* ── RESPONSIVE ── */
+@media(max-width:640px){
+  .nav-links{display:none}
+  .hero h1{font-size:2.8rem}
+  .mock-window2{display:none}
+  .mockup-screen{aspect-ratio:4/3}
+  .stats-row{gap:24px}
+  .cta-inner{padding:40px 24px}
+}
+</style>
+</head>
+<body>
+
+<!-- Particle Canvas -->
+<canvas id="particle-canvas"></canvas>
+
+<!-- Scroll Progress -->
+<div class="scroll-progress"><div class="scroll-progress-bar" id="scroll-bar"></div></div>
+
+<!-- Scroll Nav Dots -->
+<div class="scroll-nav-dots">
+  <a href="#features" class="scroll-nav-dot" title="Features"></a>
+  <a href="#apps" class="scroll-nav-dot" title="Apps"></a>
+  <a href="#faq" class="scroll-nav-dot" title="FAQ"></a>
+  <a href="#install" class="scroll-nav-dot" title="Install"></a>
+  <a href="#preview" class="scroll-nav-dot" title="Preview"></a>
+</div>
+
+<!-- NAV -->
+<nav>
+  <span class="nav-logo">WebOS 12</span>
+  <div class="nav-links">
+    <a href="#features">Features</a>
+    <a href="#apps">Apps</a>
+    <a href="#install">Install</a>
+    <a href="#preview">Preview</a>
+    <a href="#faq">FAQ</a>
+  </div>
+  <a class="nav-cta" href="https://github.com/itiswayneee/WebOS-12" target="_blank">
+    <svg viewBox="0 0 24 24"><path d="M9 19c-5 1.5-5-2.5-7-3m14 6v-3.87a3.37 3.37 0 0 0-.94-2.61c3.14-.35 6.44-1.54 6.44-7A5.44 5.44 0 0 0 20 4.77 5.07 5.07 0 0 0 19.91 1S18.73.65 16 2.48a13.38 13.38 0 0 0-7 0C6.27.65 5.09 1 5.09 1A5.07 5.07 0 0 0 5 4.77a5.44 5.44 0 0 0-1.5 3.78c0 5.42 3.3 6.61 6.44 7A3.37 3.37 0 0 0 9 18.13V22"/></svg>
+    GitHub
+  </a>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+  <span class="hero-badge"><span class="hero-badge-dot"></span>Open Source · Vanilla JS · Zero Dependencies</span>
+  <h1>
+    <span class="line1">Your Desktop.</span>
+    <span class="line2">In the Browser.</span>
+  </h1>
+  <p class="hero-sub">WebOS 12 is a high-performance, browser-based desktop environment featuring a glassmorphism aesthetic, virtualized file system, and native PWA integration.</p>
+  <div class="hero-actions">
+    <a class="btn-primary" href="https://webos-12.onrender.com/" target="_blank">
+      <svg viewBox="0 0 24 24"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+      Launch Live Demo
+    </a>
+    <a class="btn-ghost" href="https://github.com/itiswayneee/WebOS-12" target="_blank">
+      <svg viewBox="0 0 24 24"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+      Star on GitHub
+    </a>
+  </div>
+
+  <!-- BROWSER MOCKUP -->
+  <div class="hero-mockup fade-up">
+    <div class="mockup-bar">
+      <div class="mockup-dots">
+        <div class="mockup-dot"></div>
+        <div class="mockup-dot"></div>
+        <div class="mockup-dot"></div>
+      </div>
+      <div class="mockup-url">webos-12.onrender.com</div>
+    </div>
+    <div class="mockup-screen">
+      <div class="mock-desktop">
+        <div class="mock-orb mock-orb1"></div>
+        <div class="mock-orb mock-orb2"></div>
+
+        <!-- Desktop icons -->
+        <div class="mock-icons">
+          <div class="mock-icon">
+            <div class="mock-icon-img" style="background:rgba(0,120,212,.2)"><i data-lucide="folder"></i></div>
+            <span class="mock-icon-label">Files</span>
+          </div>
+          <div class="mock-icon">
+            <div class="mock-icon-img" style="background:rgba(115,201,145,.15)"><i data-lucide="file-text"></i></div>
+            <span class="mock-icon-label">Notepad</span>
+          </div>
+          <div class="mock-icon">
+            <div class="mock-icon-img" style="background:rgba(220,80,80,.15)"><i data-lucide="terminal"></i></div>
+            <span class="mock-icon-label">Terminal</span>
+          </div>
+          <div class="mock-icon">
+            <div class="mock-icon-img" style="background:rgba(96,205,255,.15)"><i data-lucide="palette"></i></div>
+            <span class="mock-icon-label">Paint</span>
+          </div>
+        </div>
+
+        <!-- Code window -->
+        <div class="mock-window">
+          <div class="mock-win-bar">
+            <div class="mock-win-dots">
+              <div class="mock-win-dot"></div>
+              <div class="mock-win-dot"></div>
+              <div class="mock-win-dot"></div>
+            </div>
+            <span class="mock-win-title">script.js — WebOS 12</span>
+          </div>
+          <div class="mock-win-body">
+            <div class="mock-code-line"><span class="c-c">// WebOS 12 · App Registry</span></div>
+            <div class="mock-code-line"><span class="c-k">const</span> <span class="c-v">APPS</span> = {</div>
+            <div class="mock-code-line">&nbsp;&nbsp;explorer: { <span class="c-v">name</span>:<span class="c-s">'Files'</span>, <span class="c-v">icon</span>:<span class="c-s">'lucide-folder'</span> },</div>
+            <div class="mock-code-line">&nbsp;&nbsp;terminal: { <span class="c-v">name</span>:<span class="c-s">'Terminal'</span>, <span class="c-v">pinned</span>:<span class="c-k">true</span> },</div>
+            <div class="mock-code-line">&nbsp;&nbsp;browser:  { <span class="c-v">name</span>:<span class="c-s">'Browser'</span>, <span class="c-v">pinned</span>:<span class="c-k">true</span> },</div>
+            <div class="mock-code-line">};</div>
+            <div class="mock-code-line"><span class="c-k">function</span> <span class="c-f">openWindow</span>(<span class="c-v">appId</span>) {</div>
+            <div class="mock-code-line">&nbsp;&nbsp;<span class="c-k">const</span> <span class="c-v">win</span> = <span class="c-f">createWindow</span>(<span class="c-v">appId</span>);</div>
+            <div class="mock-code-line">&nbsp;&nbsp;<span class="c-v">win</span>.<span class="c-f">animate</span>(<span class="c-n">WindowOpenAnim</span>);</div>
+            <div class="mock-code-line">}</div>
+          </div>
+        </div>
+
+        <!-- Terminal window -->
+        <div class="mock-window2">
+          <div class="mock-win-bar">
+            <div class="mock-win-dots">
+              <div class="mock-win-dot"></div>
+              <div class="mock-win-dot"></div>
+              <div class="mock-win-dot"></div>
+            </div>
+            <span class="mock-win-title">Terminal</span>
+          </div>
+          <div class="mock-terminal">
+            <div class="mock-code-line t-prompt">C:\Users\Wayne&gt; <span class="t-out">node server.js</span></div>
+            <div class="mock-code-line t-ok">✓ WebOS 12 running on port 3000</div>
+            <div class="mock-code-line t-out">→ PWA service worker active</div>
+            <div class="mock-code-line t-out">→ File system mounted</div>
+            <div class="mock-code-line t-prompt">C:\Users\Wayne&gt; <span style="opacity:.5;animation:pulse 1s infinite">▌</span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Taskbar -->
+      <div class="mock-taskbar">
+        <div class="mock-tb-icon"><i data-lucide="app-window" style="width:14px;height:14px"></i></div>
+        <div class="mock-tb-icon"><i data-lucide="search" style="width:14px;height:14px"></i></div>
+        <div class="mock-tb-icon active"><i data-lucide="folder" style="width:14px;height:14px"></i></div>
+        <div class="mock-tb-icon active"><i data-lucide="terminal" style="width:14px;height:14px"></i></div>
+        <div class="mock-tb-icon"><i data-lucide="globe" style="width:14px;height:14px"></i></div>
+        <div class="mock-tb-icon"><i data-lucide="music" style="width:14px;height:14px"></i></div>
+        <div class="mock-clock" id="mock-clock">12:00 PM</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- STATS -->
+<div class="stats-row">
+  <div class="stat-item fade-up">
+    <div class="stat-num">68+</div>
+    <div class="stat-label">Git Commits</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.08s">
+    <div class="stat-num">15+</div>
+    <div class="stat-label">Built-in Apps</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.16s">
+    <div class="stat-num">0</div>
+    <div class="stat-label">Dependencies</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.24s">
+    <div class="stat-num">PWA</div>
+    <div class="stat-label">Installable Offline</div>
+  </div>
+  <div class="stat-item fade-up" style="transition-delay:.32s">
+    <div class="stat-num">MIT</div>
+    <div class="stat-label">Open Source</div>
+  </div>
+</div>
+
+<!-- FEATURES -->
+<section id="features">
+  <div class="section-eyebrow">Why WebOS 12</div>
+  <h2 class="section-title fade-up">Desktop power.<br/>Zero install.</h2>
+  <p class="section-sub fade-up">Built entirely with HTML, CSS, and Vanilla JavaScript — no frameworks, no bundlers. Just open a URL and you're home.</p>
+
+  <div class="features-grid">
+    <div class="feature-card fade-up">
+      <div class="feature-icon"><i data-lucide="app-window"></i></div>
+      <div class="feature-title">Full Window System</div>
+      <p class="feature-desc">Drag, resize, snap, minimize, maximize, and alt-tab between windows — exactly like a real OS. Eight directional resize handles included.</p>
+    </div>
+    <div class="feature-card fade-up" style="transition-delay:.06s">
+      <div class="feature-icon"><i data-lucide="gem"></i></div>
+      <div class="feature-title">Glassmorphism UI</div>
+      <p class="feature-desc">Dynamic backdrop-filter effects, animated orbs, light & dark themes, custom accent colors, and wallpaper selection baked in.</p>
+    </div>
+    <div class="feature-card fade-up" style="transition-delay:.12s">
+      <div class="feature-icon"><i data-lucide="folder-tree"></i></div>
+      <div class="feature-title">Virtual File System</div>
+      <p class="feature-desc">A complete in-browser file system with folders, drag-and-drop upload, list and grid views, and a recycle bin with restore support.</p>
+    </div>
+    <div class="feature-card fade-up" style="transition-delay:.18s">
+      <div class="feature-icon"><i data-lucide="zap"></i></div>
+      <div class="feature-title">PWA Ready</div>
+      <p class="feature-desc">Install directly to your device as a Progressive Web App. Works offline with service worker caching — no app store required.</p>
+    </div>
+    <div class="feature-card fade-up" style="transition-delay:.24s">
+      <div class="feature-icon"><i data-lucide="plug"></i></div>
+      <div class="feature-title">Extensible Apps</div>
+      <p class="feature-desc">Add custom apps in three steps: register in APPS, add a case to renderApp, write your render function. The architecture is open.</p>
+    </div>
+    <div class="feature-card fade-up" style="transition-delay:.30s">
+      <div class="feature-icon"><i data-lucide="palette"></i></div>
+      <div class="feature-title">Deep Theming</div>
+      <p class="feature-desc">CSS custom properties power every visual — swap accent colors, dark/light mode, wallpapers, and the whole OS repaints instantly.</p>
+    </div>
+  </div>
+</section>
+
+<!-- APPS SHOWCASE -->
+<div class="apps-section">
+  <div class="inner">
+    <div class="section-eyebrow">Built-in Applications</div>
+    <h2 class="section-title fade-up">Everything you need,<br/>already installed.</h2>
+    <p class="section-sub fade-up">WebOS 12 ships with a suite of polished native apps — no downloads, no setup.</p>
+    <div class="apps-grid" id="apps">
+      <div class="app-card fade-up">
+        <i data-lucide="file-text" class="app-emoji"></i>
+        <div class="app-name">Notepad</div>
+        <div class="app-tag">Text Editor</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.04s">
+        <i data-lucide="folder-open" class="app-emoji"></i>
+        <div class="app-name">File Explorer</div>
+        <div class="app-tag">File Manager</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.08s">
+        <i data-lucide="terminal" class="app-emoji"></i>
+        <div class="app-name">Terminal</div>
+        <div class="app-tag">Command Line</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.12s">
+        <i data-lucide="calculator" class="app-emoji"></i>
+        <div class="app-name">Calculator</div>
+        <div class="app-tag">Math Utility</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.16s">
+        <i data-lucide="globe" class="app-emoji"></i>
+        <div class="app-name">Browser</div>
+        <div class="app-tag">Web View</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.20s">
+        <i data-lucide="paintbrush" class="app-emoji"></i>
+        <div class="app-name">Paint</div>
+        <div class="app-tag">Canvas Editor</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.24s">
+        <i data-lucide="settings" class="app-emoji"></i>
+        <div class="app-name">Settings</div>
+        <div class="app-tag">System Config</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.28s">
+        <i data-lucide="music" class="app-emoji"></i>
+        <div class="app-name">Music</div>
+        <div class="app-tag">Radio Player</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="trash-2" class="app-emoji"></i>
+        <div class="app-name">Recycle Bin</div>
+        <div class="app-tag">File Recovery</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="message-circle" class="app-emoji"></i>
+        <div class="app-name">Chat</div>
+        <div class="app-tag">Communication</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="clock" class="app-emoji"></i>
+        <div class="app-name">Clock</div>
+        <div class="app-tag">Time Management</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="images" class="app-emoji"></i>
+        <div class="app-name">Gallery</div>
+        <div class="app-tag">Image Viewer</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="mail" class="app-emoji"></i>
+        <div class="app-name">Mail</div>
+        <div class="app-tag">Communication</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="video" class="app-emoji"></i>
+        <div class="app-name">Videos</div>
+        <div class="app-tag">Media Player</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="cloud-sun" class="app-emoji"></i>
+        <div class="app-name">Weather</div>
+        <div class="app-tag">Realtime Data</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="activity" class="app-emoji"></i>
+        <div class="app-name">Task Manager</div>
+        <div class="app-tag">Resource Management</div>
+      </div>
+      <div class="app-card fade-up" style="transition-delay:.32s">
+        <i data-lucide="calendar-days" class="app-emoji"></i>
+        <div class="app-name">Calendar</div>
+      <div class="app-tag">Time Management</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INSTALL -->
+<section id="install">
+  <div class="section-eyebrow">Get Started</div>
+  <h2 class="section-title fade-up">Up and running<br/>in 60 seconds.</h2>
+  <p class="section-sub fade-up">Three ways to experience WebOS 12 — pick what works for you.</p>
+  <div class="install-grid">
+    <div class="install-card fade-up">
+      <div class="install-num">01</div>
+      <div class="install-title">Live Demo</div>
+      <p class="install-desc">No setup at all. Hit the link, start using your new browser desktop instantly.</p>
+      <a class="btn-primary" href="https://webos-12.onrender.com/" target="_blank" style="margin-top:18px;display:inline-flex;font-size:.85rem;padding:10px 22px">Open Now →</a>
+    </div>
+    <div class="install-card fade-up" style="transition-delay:.1s">
+      <div class="install-num">02</div>
+      <div class="install-title">Clone &amp; Run Locally</div>
+      <p class="install-desc">Needs Node.js for the local server (required for Service Workers). Three commands and you're done.</p>
+      <div class="code-block">git clone https://github.com/itiswayneee/WebOS-12</div>
+      <div class="code-block" style="margin-top:8px">npm install &amp;&amp; npm start</div>
+    </div>
+    <div class="install-card fade-up" style="transition-delay:.2s">
+      <div class="install-num">03</div>
+      <div class="install-title">Installation</div>
+      <p class="install-desc">Visit the live site, then click the install button in your browser's address bar. Works offline too. OR..</p>
+      <a class="btn-primary" href="https://github.com/itiswaynee/WebOS-12/releases" target="_blank" style="margin-top:18px;display:inline-flex;font-size:.85rem;padding:10px 22px">Download .exe →</a>
+    </div>
+  </div>
+</section>
+
+<!-- WALLPAPER PREVIEW -->
+<section id="preview">
+  <div class="section-eyebrow">Customize</div>
+  <h2 class="section-title fade-up">Make it yours.</h2>
+  <p class="section-sub fade-up">Preview wallpapers and themes available in WebOS 12.</p>
+  
+  <h3 class="section-sub" style="margin-top:40px;font-size:.9rem;color:var(--muted)">Wallpapers</h3>
+  <div class="wallpaper-grid" id="wallpaper-grid"></div>
+  
+  <h3 class="section-sub" style="margin-top:40px;font-size:.9rem;color:var(--muted)">Accent Colors</h3>
+  <div class="theme-options" id="theme-options"></div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-eyebrow">FAQ</div>
+  <h2 class="section-title fade-up">Common questions,<br/>answered.</h2>
+  <div class="faq-list">
+    <div class="faq-item fade-up">
+      <div class="faq-question">
+        <span>How is this different from other web desktops?</span>
+        <i data-lucide="chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">WebOS 12 is built entirely with vanilla JavaScript — no frameworks, no bundlers, zero dependencies. This means it's incredibly lightweight, fast, and easy to understand or extend.</div>
+      </div>
+    </div>
+    <div class="faq-item fade-up" style="transition-delay:.06s">
+      <div class="faq-question">
+        <span>Can I customize the appearance?</span>
+        <i data-lucide="chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Yes! WebOS 12 includes a full settings app where you can change wallpapers, accent colors, and toggle between light and dark themes. Everything is powered by CSS custom properties.</div>
+      </div>
+    </div>
+    <div class="faq-item fade-up" style="transition-delay:.12s">
+      <div class="faq-question">
+        <span>Does it work offline?</span>
+        <i data-lucide="chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">When installed as a PWA, yes. Service workers cache all assets for offline use. However, some features like the browser app require an internet connection.</div>
+      </div>
+    </div>
+    <div class="faq-item fade-up" style="transition-delay:.18s">
+      <div class="faq-question">
+        <span>How do I add my own apps?</span>
+        <i data-lucide="chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Add apps in three simple steps: register it in the APPS object, add a render case in the switch statement, and write your render function. The architecture is fully open and documented.</div>
+      </div>
+    </div>
+    <div class="faq-item fade-up" style="transition-delay:.24s">
+      <div class="faq-question">
+        <span>Is my data saved anywhere?</span>
+        <i data-lucide="chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">All data is stored locally in your browser using localStorage and IndexedDB. Nothing is sent to any server — your files and settings stay on your device.</div>
+      </div>
+    </div>
+    <div class="faq-item fade-up" style="transition-delay:.24s">
+      <div class="faq-question">
+        <span>Can I download a .exe</span>
+        <i data-lucide="chevron-down"></i>
+      </div>
+      <div class="faq-answer">
+        <div class="faq-answer-inner">Yes, you can download a .exe file for Windows users from <a href="https://github.com/itiswayneee/WebOS-12/releases" target="_blank">github releases</a>.</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<div class="cta-banner">
+  <div class="cta-inner fade-up">
+    <h2>Ready to move in?</h2>
+    <p>Star the repo, try the live demo, or fork it and make it yours. Built with ❤️ by Wayne.</p>
+    <div class="cta-actions">
+      <a class="btn-primary" href="https://webos-12.onrender.com/" target="_blank">Launch WebOS 12</a>
+      <a class="btn-ghost" href="https://github.com/itiswayneee/WebOS-12" target="_blank">View Source</a>
+    </div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-row">
+    <span class="footer-logo">WebOS 12</span>
+    <div class="footer-links">
+      <a href="https://github.com/itiswayneee/WebOS-12" target="_blank">GitHub</a>
+      <a href="https://webos-12.onrender.com/" target="_blank">Live Demo</a>
+      <a href="https://github.com/itiswayneee/WebOS-12/releases" target="_blank">Releases</a>
+      <a href="https://github.com/itiswayneee/WebOS-12/blob/main/LICENSE" target="_blank">MIT License</a>
+    </div>
+    <span>Developed with 💙 by <a href="https://github.com/itiswayneee" target="_blank">Wayne</a></span>
+  </div>
+  <div style="max-width:900px;margin:24px auto 0;padding-top:20px;border-top:1px solid var(--border);font-size:.78rem;line-height:1.7;opacity:.7">
+    <p><strong>License &amp; Disclaimer:</strong> This software is provided "as is", without warranty of any kind. You may not reproduce, redistribute, or reupload this project or its derivatives without explicit written permission from the copyright holder.</p>
+    <p style="margin-top:8px">&copy; 2026 Wayne. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+// ── Live mock clock ──
+function updateClock(){
+  const now=new Date();
+  const h=now.getHours()%12||12;
+  const m=String(now.getMinutes()).padStart(2,'0');
+  const ap=now.getHours()<12?'AM':'PM';
+  document.getElementById('mock-clock').textContent=`${h}:${m} ${ap}`;
+}
+updateClock();setInterval(updateClock,10000);
+
+// ── Intersection Observer for fade-up ──
+const io=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+},{threshold:.12});
+document.querySelectorAll('.fade-up').forEach(el=>io.observe(el));
+
+// ── Nav pill highlight on scroll ──
+const navLinks=document.querySelectorAll('.nav-links a');
+const sections=[...document.querySelectorAll('section[id],.apps-section')];
+window.addEventListener('scroll',()=>{
+  const scrollY=window.scrollY+80;
+  sections.forEach(sec=>{
+    const id=sec.id||'apps';
+    const top=sec.offsetTop;
+    const bot=top+sec.offsetHeight;
+    const link=document.querySelector(`.nav-links a[href="#${id}"]`);
+    if(link){
+      if(scrollY>=top&&scrollY<bot){link.style.color='var(--text)';link.style.background='var(--surface2)'}
+      else{link.style.color='';link.style.background=''}
+    }
+  });
+},{ passive:true });
+
+// ── Initialize Lucide icons ──
+lucide.createIcons();
+
+// ── Scroll Progress Bar ──
+window.addEventListener('scroll',()=>{
+  const winScroll=document.documentElement.scrollTop;
+  const height=document.documentElement.scrollHeight-document.documentElement.clientHeight;
+  const scrolled=(winScroll/height)*100;
+  document.getElementById('scroll-bar').style.width=scrolled+'%';
+});
+
+// ── Scroll Nav Dots ──
+const navDots=document.querySelectorAll('.scroll-nav-dot');
+const sectionsAll=[...document.querySelectorAll('section[id],.apps-section')];
+window.addEventListener('scroll',()=>{
+  const scrollY=window.scrollY+100;
+  sectionsAll.forEach((sec,idx)=>{
+    const top=sec.offsetTop;
+    const bot=top+sec.offsetHeight;
+    if(scrollY>=top&&scrollY<bot){
+      navDots.forEach(d=>d.classList.remove('active'));
+      if(navDots[idx])navDots[idx].classList.add('active');
+    }
+  });
+});
+navDots.forEach(dot=>{
+  dot.addEventListener('click',e=>{
+    e.preventDefault();
+    const target=document.querySelector(dot.getAttribute('href'));
+    target.scrollIntoView({behavior:'smooth'});
+  });
+});
+
+// ── FAQ Accordion ──
+document.querySelectorAll('.faq-question').forEach(btn=>{
+  btn.addEventListener('click',()=>{
+    const item=btn.parentElement;
+    const isOpen=item.classList.contains('open');
+    document.querySelectorAll('.faq-item.open').forEach(open=>open.classList.remove('open'));
+    if(!isOpen)item.classList.add('open');
+  });
+});
+
+// ── Animated Stats Counter (existing code) ──
+function animateStats(){
+  document.querySelectorAll('.stat-num').forEach(el=>{
+    const target=parseInt(el.textContent);
+    if(isNaN(target))return;
+    const suffix=el.dataset.suffix||'';
+    let current=0;
+    const inc=target/30;
+    const timer=setInterval(()=>{
+      current+=inc;
+      if(current>=target){
+        el.textContent=target+(suffix?'+':'');
+        clearInterval(timer);
+      }else{
+        el.textContent=Math.floor(current)+(suffix?'+':'');
+      }
+    },50);
+  });
+}
+const statsSection=document.querySelector('.stats-row');
+const statsObs=new IntersectionObserver(e=>{
+  if(e[0].isIntersecting){
+    animateStats();
+    statsObs.disconnect();
+  }
+},{threshold:.5});
+if(statsSection)statsObs.observe(statsSection);
+
+// ── Wallpaper/Theme Generator ──
+const WALLPAPERS = [
+  { name:'Horizon',     bg:'linear-gradient(125deg,#0c1929 0%,#1a3a52 38%,#0d2137 100%)' },
+  { name:'Aurora',      bg:'linear-gradient(135deg,#0a1628 0%,#1e3a5f 45%,#0f2840 100%)' },
+  { name:'Nebula',      bg:'radial-gradient(ellipse 100% 80% at 20% 20%,#4c1d95 0%,transparent 50%),radial-gradient(ellipse 80% 60% at 80% 70%,#0e7490 0%,transparent 45%),linear-gradient(160deg,#0f172a 0%,#1e1b4b 100%)' },
+  { name:'Sunset',      bg:'linear-gradient(160deg,#ff6b6b 0%,#ff8e53 40%,#ffd93d 100%)' },
+  { name:'Forest',      bg:'linear-gradient(135deg,#134e5e 0%,#71b280 100%)' },
+  { name:'Purple',      bg:'linear-gradient(135deg,#2d1b69 0%,#8b2fc9 100%)' },
+  { name:'Ocean',       bg:'linear-gradient(135deg,#005c97 0%,#363795 100%)' },
+  { name:'Rose',        bg:'linear-gradient(135deg,#f953c6 0%,#b91d73 100%)' },
+  { name:'Carbon',      bg:'linear-gradient(180deg,#18181b 0%,#0a0a0b 100%)' },
+  { name:'Volcano',    bg:'linear-gradient(160deg,#8b0000 0%,#ff4500 50%,#2f1f0f 100%)' },
+  { name:'Arctic',     bg:'linear-gradient(160deg,#e8f4f8 0%,#a8d8ea 50%,#d0e8f0 100%)' },
+  { name:'Midnight',   bg:'linear-gradient(135deg,#0f0c29 0%,#302b63 50%,#24243e 100%)' },
+  { name:'Mint',       bg:'linear-gradient(135deg,#134e4a 0%,#44bfaa 100%)' },
+  { name:'Peach',      bg:'linear-gradient(135deg,#ffecd2 0%,#fcb69f 100%)' },
+  { name:'Lavender',   bg:'linear-gradient(135deg,#e6e9f0 0%,#c9d6ff 100%)' },
+  { name:'Ember',     bg:'linear-gradient(160deg,#232526 0%,#414345 50%,#181a1b 100%)' },
+  { name:'Candy',     bg:'linear-gradient(160deg,#ff9a9e 0%,#fecfef 50%,#fad0c4 100%)' },
+  { name:'Matrix',     bg:'linear-gradient(180deg,#0d1f0d 0%,#0a330a 50%,#051505 100%)' },
+];
+
+const ACCENT_COLORS = [
+  '#0078d4','#8764b8','#567c34','#ca5010','#008b8b','#c43e1c','#69797e','#038387',
+  '#e74856','#ff8c00','#00b294','#6b69de','#a426a4','#d1342a','#e3008c','#567c34'
+];
+
+function renderWallpapers(){
+  const container=document.getElementById('wallpaper-grid');
+  if(!container)return;
+  container.innerHTML=WALLPAPERS.map((w,i)=>`
+    <div class="wallpaper-option${i===0?' active':''}" data-name="${w.name}" data-bg="${w.bg.replace(/"/g,'&quot;')}" style="background:${w.bg}">
+      <span class="wallpaper-name">${w.name}</span>
+    </div>
+  `).join('');
+  document.querySelectorAll('.wallpaper-option').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      document.querySelectorAll('.wallpaper-option').forEach(o=>o.classList.remove('active'));
+      opt.classList.add('active');
+    });
+  });
+}
+
+function renderThemes(){
+  const container=document.getElementById('theme-options');
+  if(!container)return;
+  container.innerHTML=ACCENT_COLORS.map((c,i)=>`
+    <div class="theme-option${i===0?' active':''}" data-color="${c}" style="background:${c}"></div>
+  `).join('');
+  document.querySelectorAll('.theme-option').forEach(opt=>{
+    opt.addEventListener('click',()=>{
+      document.querySelectorAll('.theme-option').forEach(o=>o.classList.remove('active'));
+      opt.classList.add('active');
+      document.documentElement.style.setProperty('--accent',opt.dataset.color);
+    });
+  });
+}
+
+renderThemes();
+renderWallpapers();
+
+// ── Glow Hover Effect ──
+document.querySelectorAll('.glow-hover').forEach(el=>{
+  el.addEventListener('mousemove',e=>{
+    const rect=el.getBoundingClientRect();
+    const x=e.clientX-rect.left;
+    const y=e.clientY-rect.top;
+    el.style.setProperty('--x',`${(x/rect.width)*100}%`);
+    el.style.setProperty('--y',`${(y/rect.height)*100}%`);
+  });
+});
+
+// ── Mouse Particle Trail ──
+const particles=[];
+const particleCount=30;
+class Particle{
+  constructor(){
+    this.x=0;this.y=0;this.size=Math.random()*3+1;
+    this.speedX=Math.random()*2-1;this.speedY=Math.random()*2-1;
+    this.life=1;
+  }
+  update(x,y){
+    this.x=x;this.y=y;this.life-=0.02;
+  }
+  draw(ctx){
+    ctx.beginPath();
+    ctx.arc(this.x,this.y,this.size,0,Math.PI*2);
+    ctx.fillStyle=`rgba(96,205,255,${this.life*0.5})`;
+    ctx.fill();
+  }
+}
+document.addEventListener('mousemove',e=>{
+  if(particles.length<particleCount){
+    particles.push(new Particle());
+  }
+  particles.forEach((p,i)=>{p.update(e.clientX,e.clientY)});
+});
+function animateParticles(){
+  const cvs=document.getElementById('particle-canvas');
+  if(!cvs)return;
+  const ctx=cvs.getContext('2d');
+  cvs.width=window.innerWidth;cvs.height=window.innerHeight;
+  ctx.clearRect(0,0, cvs.width, cvs.height);
+  particles.forEach((p,i)=>{p.draw(ctx);if(p.life<=0)particles.splice(i,1)});
+  requestAnimationFrame(animateParticles);
+}
+animateParticles();
+</script>
+</body>
+</html>
